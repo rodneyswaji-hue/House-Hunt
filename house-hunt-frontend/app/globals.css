@@ -1,0 +1,15 @@
+/* app/globals.css */
+@import "tailwindcss";
+
+/* Leaflet map styles — must be imported globally, not inside a component */
+@import "leaflet/dist/leaflet.css";
+
+/* Ensure Leaflet map containers always have a z-index context */
+.leaflet-container {
+  z-index: 0;
+}
+
+/* Prevent Leaflet popup close button from being clipped */
+.leaflet-popup-close-button {
+  padding: 4px 8px !important;
+}
