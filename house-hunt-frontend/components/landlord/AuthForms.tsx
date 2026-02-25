@@ -213,6 +213,10 @@ export function LandlordRegisterForm() {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (!/^07\d{8}$/.test(phone)) {
+      setError("Enter a valid Kenyan phone number (07XXXXXXXX).");
+      return;
+    }
 
     setLoading(true);
     try {
