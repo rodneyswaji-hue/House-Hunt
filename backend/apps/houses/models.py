@@ -1,5 +1,10 @@
 # apps/houses/models.py
+import boto3
+from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from urllib.parse import urlparse
 from apps.accounts.models import Landlord
 
 
@@ -47,10 +52,39 @@ class HouseImage(models.Model):
         db_table = "house_images"
         ordering = ["order"]
 
-
 class HouseVideo(models.Model):
     house = models.OneToOneField(House, on_delete=models.CASCADE, related_name="video")
     url = models.URLField(max_length=500)
 
     class Meta:
         db_table = "house_videos"
+
+# --- AUTO-DELETE SIGNALS ---
+
+def delete_s3_file_by_url(url):
+    """Helper to delete a file from S3 given its full URL"""
+    if not url:
+        return
+    
+    try:
+        # Extract the path from the URL (e.g., 'house_photos/img.jpg')
+        path = urlparse(url).path.lstrip('/')
+        
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION
+        )
+        
+        s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=path)
+    except Exception as e:
+        print(f"Error deleting file from S3: {e}")
+
+@receiver(post_delete, sender=HouseImage)
+def auto_delete_image_on_delete(sender, instance, **kwargs):
+    delete_s3_file_by_url(instance.url)
+
+@receiver(post_delete, sender=HouseVideo)
+def auto_delete_video_on_delete(sender, instance, **kwargs):
+    delete_s3_file_by_url(instance.url)

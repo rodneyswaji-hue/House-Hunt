@@ -81,6 +81,38 @@ class HouseCreateSerializer(serializers.Serializer):
 
 
 class HouseUpdateSerializer(serializers.ModelSerializer):
+    images = serializers.ListField(child=serializers.URLField(), required=False)
+    video = serializers.URLField(allow_null=True, required=False)
+
     class Meta:
         model = House
-        fields = ["title", "location", "description", "price", "units", "bedrooms", "available"]
+        fields = [
+            "title", "location", "description", "price", 
+            "units", "bedrooms", "available", "images", "video"
+        ]
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+        video_url = validated_data.pop('video', None)
+
+        # 1. Update standard house fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # 2. Handle Image Updates (Syncing)
+        if images_data is not None:
+            # This triggers the 'post_delete' signal we wrote for any removed image
+            instance.images.all().delete() 
+            for i, url in enumerate(images_data):
+                HouseImage.objects.create(house=instance, url=url, order=i)
+
+        # 3. Handle Video Updates
+        if video_url is not None:
+            if hasattr(instance, 'video'):
+                instance.video.delete() # Triggers S3 cleanup signal
+            HouseVideo.objects.create(house=instance, url=video_url)
+        elif video_url is None and hasattr(instance, 'video'):
+             instance.video.delete()
+
+        return instance
