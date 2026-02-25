@@ -27,8 +27,7 @@
 **Impact**: SEVERE SECURITY BREACH - credentials exposed in version control.
 **Fixed**: ✅ Removed real credentials, added placeholders.
 **ACTION REQUIRED**: You MUST rotate these credentials immediately:
-- AWS Access Key: AKIAWGQS27AJA3ZJOB57
-- Africa's Talking API Key: atsk_b568da63fe5c2693ccf0a4ed596055b47b65ae10aa605ded676df367320d36334f03e77d
+
 
 ## ⚠️ IMPORTANT IMPROVEMENTS
 

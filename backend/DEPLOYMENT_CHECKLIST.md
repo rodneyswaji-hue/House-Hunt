@@ -17,15 +17,7 @@
 ### IMMEDIATE - Rotate Compromised Credentials:
 Your credentials were exposed in the .env file. You MUST rotate these immediately:
 
-1. **AWS Credentials** (CRITICAL):
-   - Go to AWS IAM Console
-   - Delete access key: `AKIAWGQS27AJA3ZJOB57`
-   - Create new access key
-   - Update in Render environment variables
-
-2. **Africa's Talking API Key** (CRITICAL):
-   - Log into Africa's Talking dashboard
-   - Revoke API key: `atsk_b568da63fe5c2693ccf0a4ed596055b47b65ae10aa605ded676df367320d36334f03e77d`
+`
    - Generate new API key
    - Update in Render environment variables
 

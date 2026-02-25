@@ -1,4 +1,5 @@
 # househunt/settings.py
+# househunt/settings.py
 from pathlib import Path
 from decouple import config
 import dj_database_url
@@ -18,7 +19,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_cleanup.apps.CleanupConfig",
     # Third party
     "rest_framework",
     "rest_framework_simplejwt",
@@ -42,8 +42,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "backend.urls"
-WSGI_APPLICATION = "backend.wsgi.application"
+ROOT_URLCONF = "househunt.urls"
+WSGI_APPLICATION = "househunt.wsgi.application"
 
 TEMPLATES = [
     {
@@ -66,7 +66,7 @@ DATABASES = {
     "default": dj_database_url.config(
         default=config("DATABASE_URL"),
         conn_max_age=600,
-        ssl_require=True if not DEBUG else False,
+        ssl_require=not DEBUG,
     )
 }
 
@@ -104,6 +104,14 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/hour",
+        "user": "1000/hour",
+    },
 }
 
 # ── JWT ───────────────────────────────────────────────────────────────────
@@ -123,20 +131,36 @@ CORS_ALLOWED_ORIGINS = config(
 ).split(",")
 CORS_ALLOW_CREDENTIALS = True
 
+# CSRF trusted origins for production
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="http://localhost:3000"
+).split(",")
+
 # ── AWS S3 ────────────────────────────────────────────────────────────────
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = config("AWS_S3_BUCKET_NAME", default="")
-AWS_S3_REGION_NAME = config("AWS_S3_REGION", default="af-south-1")
+AWS_S3_REGION_NAME = config("AWS_S3_REGION", default="eu-north-1")
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+
+# ── CloudFront ────────────────────────────────────────────────────────────
+# Set this to your CloudFront distribution domain, e.g. d1234abcd.cloudfront.net
+# Files are served through CloudFront — direct S3 URLs are blocked.
+CLOUDFRONT_DOMAIN = config("CLOUDFRONT_DOMAIN", default="")
 
 # Only use S3 in production
 if not DEBUG:
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+    # Serve via CloudFront if configured, otherwise fall back to direct S3
+    if CLOUDFRONT_DOMAIN:
+        MEDIA_URL = f"https://{CLOUDFRONT_DOMAIN}/"
+        AWS_S3_CUSTOM_DOMAIN = CLOUDFRONT_DOMAIN
+    else:
+        AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+        MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 else:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
@@ -145,3 +169,12 @@ else:
 AT_USERNAME = config("AT_USERNAME", default="sandbox")
 AT_API_KEY = config("AT_API_KEY", default="")
 AT_SENDER_ID = config("AT_SENDER_ID", default="HouseHunt")
+
+# ── Production Security ───────────────────────────────────────────────────
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True

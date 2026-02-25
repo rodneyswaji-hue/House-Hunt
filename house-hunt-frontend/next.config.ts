@@ -4,7 +4,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // AWS S3 bucket for property images/videos
+      // CloudFront CDN — primary image source
+      {
+        protocol: "https",
+        hostname: "*.cloudfront.net",
+      },
+      // Direct S3 fallback (used in local dev when CLOUDFRONT_DOMAIN is not set)
       {
         protocol: "https",
         hostname: "*.s3.amazonaws.com",
@@ -21,10 +26,9 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Leaflet CSS requires this — prevents "can't resolve 'leaflet'" on SSR
-  webpack: (config, { isServer }) => {
+  // Leaflet is client-only — don't attempt to bundle it on the server
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
     if (isServer) {
-      // Leaflet is client-only, don't attempt to bundle it on the server
       config.externals = config.externals || [];
       if (Array.isArray(config.externals)) {
         config.externals.push("leaflet");

@@ -1,5 +1,6 @@
 # apps/houses/upload.py
 # Generates S3 presigned URLs for direct browser-to-S3 uploads.
+# Returns CloudFront URLs for serving — direct S3 URLs are never exposed.
 # AWS credentials live here in Django only — Next.js never sees them.
 
 import uuid
@@ -28,8 +29,8 @@ def generate_upload_url(request):
     Body: { fileName, fileType, fileSize }
     Returns: { uploadUrl, publicUrl }
 
-    The browser uses uploadUrl to PUT the file directly to S3.
-    The publicUrl is the permanent URL saved with the house record.
+    uploadUrl  — presigned S3 PUT URL (browser uploads directly, expires in 5 min)
+    publicUrl  — CloudFront URL saved permanently with the house record
     """
     file_name = request.data.get("fileName", "")
     file_type = request.data.get("fileType", "")
@@ -45,7 +46,10 @@ def generate_upload_url(request):
     try:
         file_size = int(file_size)
     except (TypeError, ValueError):
-        return Response({"error": "Invalid file size."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Invalid file size."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     if file_size > MAX_SIZE_BYTES:
         return Response(
@@ -57,7 +61,7 @@ def generate_upload_url(request):
     ext = ALLOWED_TYPES[file_type]
     key = f"houses/{uuid.uuid4().hex}.{ext}"
 
-    # ── Create presigned URL ──────────────────────────────────────────────
+    # ── Create presigned S3 upload URL ────────────────────────────────────
     try:
         s3_client = boto3.client(
             "s3",
@@ -66,6 +70,7 @@ def generate_upload_url(request):
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         )
 
+        # Presigned URL points directly at S3 for the upload
         upload_url = s3_client.generate_presigned_url(
             "put_object",
             Params={
@@ -76,10 +81,15 @@ def generate_upload_url(request):
             ExpiresIn=300,  # 5 minutes
         )
 
-        public_url = (
-            f"https://{settings.AWS_STORAGE_BUCKET_NAME}"
-            f".s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/{key}"
-        )
+        # Public URL uses CloudFront domain if configured, S3 as fallback
+        # (fallback is useful during local development)
+        if settings.CLOUDFRONT_DOMAIN:
+            public_url = f"https://{settings.CLOUDFRONT_DOMAIN}/{key}"
+        else:
+            public_url = (
+                f"https://{settings.AWS_STORAGE_BUCKET_NAME}"
+                f".s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/{key}"
+            )
 
         return Response({"uploadUrl": upload_url, "publicUrl": public_url})
 
