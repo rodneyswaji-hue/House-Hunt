@@ -66,6 +66,10 @@ def delete_s3_file_by_url(url):
     if not url:
         return
     
+    # Skip S3 deletion if credentials are not configured
+    if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
+        return
+    
     try:
         # Extract the path from the URL (e.g., 'house_photos/img.jpg')
         path = urlparse(url).path.lstrip('/')
@@ -74,7 +78,7 @@ def delete_s3_file_by_url(url):
             's3',
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION
+            region_name=settings.AWS_S3_REGION_NAME
         )
         
         s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=path)

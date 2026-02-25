@@ -3,10 +3,10 @@ services:
     name: backend
     env: python
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate
-    startCommand: gunicorn househunt.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+    startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: househunt.settings
+        value: backend.settings
       - key: DEBUG
         value: "False"
       - key: SECRET_KEY
@@ -26,7 +26,7 @@ services:
       - key: AWS_S3_BUCKET_NAME
         sync: false
       - key: AWS_S3_REGION
-        value: af-south-1
+        sync: false
       - key: AT_USERNAME
         sync: false
       - key: AT_API_KEY
