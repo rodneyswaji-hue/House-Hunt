@@ -2,6 +2,7 @@ services:
   - type: web
     name: househunt-backend
     env: python
+    rootDir: backend
     buildCommand: ./build.sh
     startCommand: gunicorn househunt.wsgi:application
     envVars:
