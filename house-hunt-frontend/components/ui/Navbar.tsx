@@ -3,17 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogIn, Menu, X, Home, Phone } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { LogIn, Menu, X, Home, Phone, UserPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
   { label: "Home", href: "/", icon: <Home size={16} /> },
   { label: "Browse Listings", href: "/listings", icon: null },
-  { label: "Contact", href: "#contact", icon: <Phone size={16} /> },
+  { label: "Contact", href: "/contact", icon: <Phone size={16} /> },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const isListingsPage = pathname?.startsWith("/listings");
 
   return (
     <nav className="bg-blue-600 text-white shadow-md sticky top-0 z-50">
@@ -44,13 +47,24 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/landlord/login"
-            className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 transition font-semibold text-sm px-4 py-2 rounded-full"
-          >
-            <LogIn size={16} />
-            Landlord Login
-          </Link>
+          {!isListingsPage && (
+            <Link
+              href="/landlord/login"
+              className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 transition font-semibold text-sm px-4 py-2 rounded-full"
+            >
+              <LogIn size={16} />
+              Landlord Login
+            </Link>
+          )}
+          {isListingsPage && (
+            <Link
+              href="/tenant/register"
+              className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 transition font-semibold text-sm px-4 py-2 rounded-full"
+            >
+              <UserPlus size={16} />
+              Create Account
+            </Link>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -85,14 +99,26 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/landlord/login"
-                className="flex items-center gap-2 hover:text-blue-200 transition font-medium pt-1 border-t border-blue-500"
-                onClick={() => setIsOpen(false)}
-              >
-                <LogIn size={16} />
-                Landlord Login
-              </Link>
+              {!isListingsPage && (
+                <Link
+                  href="/landlord/login"
+                  className="flex items-center gap-2 hover:text-blue-200 transition font-medium pt-1 border-t border-blue-500"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <LogIn size={16} />
+                  Landlord Login
+                </Link>
+              )}
+              {isListingsPage && (
+                <Link
+                  href="/tenant/register"
+                  className="flex items-center gap-2 hover:text-blue-200 transition font-medium pt-1 border-t border-blue-500"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <UserPlus size={16} />
+                  Create Account
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

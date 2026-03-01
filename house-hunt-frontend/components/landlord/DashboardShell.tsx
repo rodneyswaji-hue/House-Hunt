@@ -83,8 +83,13 @@ export default function DashboardShell({ children }: { children: React.ReactNode
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/landlord/login");
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/landlord/login");
+      router.refresh();
+    } catch {
+      setLoggingOut(false);
+    }
   };
 
   const SidebarContent = () => (

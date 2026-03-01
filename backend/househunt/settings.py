@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.houses",
     "apps.bookings",
+    "apps.contact",
     "apps.tenants",
     "apps.feedback",
     "apps.audit",
