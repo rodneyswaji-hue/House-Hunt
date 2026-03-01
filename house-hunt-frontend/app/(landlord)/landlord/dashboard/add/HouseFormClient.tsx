@@ -7,7 +7,7 @@
 // - Full validation
 // - Django-ready POST to /api/houses
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,8 +19,14 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  ExternalLink,
 } from "lucide-react";
+import dynamic from "next/dynamic";
+import Script from "next/script";
+
+const LocationPicker = dynamic(() => import("@/components/landlord/LocationPicker"), {
+  ssr: false,
+  loading: () => <div className="h-[400px] bg-slate-700/50 rounded-xl animate-pulse" />,
+});
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -216,6 +222,7 @@ export default function HouseFormClient() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [mapsLoaded, setMapsLoaded] = useState(false);
 
   const setField = (key: keyof FormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -440,50 +447,39 @@ export default function HouseFormClient() {
 
       {/* ── Section: Location ── */}
       <section className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6 space-y-5">
-        <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-          <h2 className="text-white font-semibold text-base">GPS Coordinates</h2>
-          <a
-            href="https://www.google.com/maps"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
-          >
-            Find on Google Maps <ExternalLink size={11} />
-          </a>
+        <div className="border-b border-slate-700 pb-3">
+          <h2 className="text-white font-semibold text-base flex items-center gap-2">
+            <MapPin size={16} className="text-blue-400" />
+            Property Location
+          </h2>
+          <p className="text-slate-400 text-xs mt-1">
+            Search or click on the map to select the exact property location
+          </p>
         </div>
-        <p className="text-slate-400 text-xs -mt-2">
-          Open Google Maps, right-click the property location, and copy the coordinates shown.
-        </p>
 
-        <div className="grid sm:grid-cols-2 gap-5">
-          <FormField label="Latitude" required hint="e.g. -1.286389">
-            <div className="relative">
-              <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="text"
-                placeholder="-1.286389"
-                value={form.latitude}
-                onChange={setField("latitude")}
-                className={`${inputCls} pl-9`}
-                required
-              />
-            </div>
-          </FormField>
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+          onLoad={() => setMapsLoaded(true)}
+        />
 
-          <FormField label="Longitude" required hint="e.g. 36.817223">
-            <div className="relative">
-              <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="text"
-                placeholder="36.817223"
-                value={form.longitude}
-                onChange={setField("longitude")}
-                className={`${inputCls} pl-9`}
-                required
-              />
-            </div>
-          </FormField>
-        </div>
+        {mapsLoaded ? (
+          <LocationPicker
+            onLocationSelect={(location) => {
+              setForm((f) => ({
+                ...f,
+                latitude: location.lat.toString(),
+                longitude: location.lng.toString(),
+                location: location.address.split(",")[0] || f.location,
+              }));
+            }}
+            initialLat={form.latitude ? parseFloat(form.latitude) : undefined}
+            initialLng={form.longitude ? parseFloat(form.longitude) : undefined}
+          />
+        ) : (
+          <div className="h-[400px] bg-slate-700/50 rounded-xl flex items-center justify-center">
+            <Loader2 size={24} className="animate-spin text-slate-400" />
+          </div>
+        )}
       </section>
 
       {/* ── Section: Images & Video ── */}
