@@ -24,6 +24,7 @@ export interface House {
   images: string[];          // AWS S3 URLs
   video?: string;            // AWS S3 URL
   landlord: {
+    id: number;
     name: string;
     phone: string;
   };

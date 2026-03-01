@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import ReviewsSection from "@/components/listings/ReviewsSection";
 import {
   ChevronLeft,
   ChevronRight,
@@ -326,6 +327,14 @@ export default function HouseCard({ house }: HouseCardProps) {
             <MapPin size={15} />
             View on Map
           </button>
+          <>
+          <ReviewsSection
+            landlordId={house.landlord.id}
+            landlordName={house.landlord.name}
+          />
+          
+          </>
+          
         </div>
       </div>
     </motion.div>
