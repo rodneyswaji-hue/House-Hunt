@@ -29,6 +29,12 @@ class Landlord(AbstractBaseUser, PermissionsMixin):
     otp = models.CharField(max_length=6, blank=True, null=True)
     otp_created_at = models.DateTimeField(blank=True, null=True)
 
+    # Ban fields
+    is_banned = models.BooleanField(default=False)
+    ban_reason = models.TextField(blank=True, null=True)
+    banned_at = models.DateTimeField(blank=True, null=True)
+    banned_by = models.CharField(max_length=150, blank=True, null=True)
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -66,3 +72,21 @@ class Landlord(AbstractBaseUser, PermissionsMixin):
         self.otp = None
         self.otp_created_at = None
         self.save(update_fields=["otp", "otp_created_at"])
+
+    def ban(self, reason="", banned_by=""):
+        """Ban this landlord."""
+        self.is_banned = True
+        self.ban_reason = reason
+        self.banned_at = timezone.now()
+        self.banned_by = banned_by
+        self.is_active = False
+        self.save(update_fields=["is_banned", "ban_reason", "banned_at", "banned_by", "is_active"])
+
+    def unban(self):
+        """Unban this landlord."""
+        self.is_banned = False
+        self.ban_reason = None
+        self.banned_at = None
+        self.banned_by = None
+        self.is_active = True
+        self.save(update_fields=["is_banned", "ban_reason", "banned_at", "banned_by", "is_active"])

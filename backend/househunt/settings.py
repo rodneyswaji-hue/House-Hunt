@@ -3,6 +3,7 @@
 from pathlib import Path
 from decouple import config
 import dj_database_url
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,6 +29,9 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.houses",
     "apps.bookings",
+    "apps.tenants",
+    "apps.feedback",
+    "apps.audit",
 ]
 
 MIDDLEWARE = [

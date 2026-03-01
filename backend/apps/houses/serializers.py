@@ -8,6 +8,7 @@ class HouseListSerializer(serializers.ModelSerializer):
     video = serializers.SerializerMethodField()
     landlord = serializers.SerializerMethodField()
     coordinates = serializers.SerializerMethodField()
+    is_banned = serializers.SerializerMethodField()
 
     class Meta:
         model = House
@@ -15,7 +16,7 @@ class HouseListSerializer(serializers.ModelSerializer):
             "id", "title", "location", "description",
             "price", "units", "bedrooms", "available",
             "images", "video", "landlord", "coordinates",
-            "created_at", "updated_at",
+            "is_banned", "created_at", "updated_at",
         ]
 
     def get_images(self, obj):
@@ -28,12 +29,18 @@ class HouseListSerializer(serializers.ModelSerializer):
             return None
 
     def get_landlord(self, obj):
+        # Hide contact info if landlord is banned
+        if obj.landlord.is_banned:
+            return {"name": "Account Suspended", "phone": None}
         return {"name": obj.contact_name, "phone": obj.contact_phone}
 
     def get_coordinates(self, obj):
         if obj.latitude and obj.longitude:
             return {"lat": float(obj.latitude), "lng": float(obj.longitude)}
         return None
+
+    def get_is_banned(self, obj):
+        return obj.landlord.is_banned
 
 
 class HouseCreateSerializer(serializers.Serializer):
