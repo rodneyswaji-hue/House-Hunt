@@ -33,6 +33,7 @@ export default function LocationPicker({ onLocationSelect, initialLat, initialLn
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
+      mapId: "HOUSE_HUNT_MAP", // Required for AdvancedMarkerElement
     });
 
     const newMarker = new google.maps.Marker({
@@ -65,7 +66,7 @@ export default function LocationPicker({ onLocationSelect, initialLat, initialLn
     if (initialLat && initialLng) {
       reverseGeocode(initialLat, initialLng);
     }
-  }, []);
+  }, [initialLat, initialLng]);
 
   // Reverse geocode to get address from coordinates
   const reverseGeocode = useCallback(async (lat: number, lng: number) => {
