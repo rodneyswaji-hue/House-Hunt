@@ -72,6 +72,7 @@ House Hunt is a full-stack web application that connects tenants and landlords. 
 - Document storage (future feature)
 
 ## 📂 Project Structure
+```bash
 house-hunt/
 │
 ├── frontend/ # React application
@@ -86,7 +87,7 @@ house-hunt/
 └── README.md
 
 ---
-
+```
 ## ⚙️ Installation & Setup
 
 ### 1. Clone the Repository
@@ -118,21 +119,29 @@ SECRET_KEY=your_secret_key
 DEBUG=True
 DATABASE_URL=your_database_url
 ```
-#### Frontend
-```bash
-VITE_SUPABASE_URL=your_url
-VITE_SUPABASE_ANON_KEY=your_key
-```
+
 ## 🔐 Authentication
-Supabase authentication is used for user login and signup
-Supports secure session management
-📡 API Endpoints (Sample)
-Method	Endpoint	Description
-GET	/api/properties/	Get all properties
-POST	/api/properties/	Create property
-GET	/api/tenants/	Get tenants
-POST	/api/auth/login	User login
-## 📸 Screenshots
+
+The application uses Django’s built-in authentication system to handle user registration, login, and session management.
+
+### Features
+
+- Secure user authentication using Django’s auth framework  
+- Password hashing and validation handled by Django  
+- Session-based authentication for maintaining user state  
+- Support for protected routes and user-specific data access  
+
+### Implementation
+
+- Custom user handling integrated with Django models  
+- Authentication endpoints exposed via Django REST Framework  
+- Backend enforces access control for sensitive operations  
+
+### Security
+
+- Passwords are securely hashed using Django’s built-in hashing algorithms  
+- CSRF protection enabled for secure requests  
+- Environment variables used to protect sensitive configuration data  
 
 
 
