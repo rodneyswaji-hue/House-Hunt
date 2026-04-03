@@ -146,13 +146,11 @@ Admin analytics dashboard
 
 Contributions are welcome! Feel free to fork the repo and submit a pull request.
 
-## License
 
-This project is licensed under the MIT License.
 
 ## Author
 
 Rodney Swaji
 
 GitHub: https://github.com/rodneyswaji-hue
-LinkedIn: (add your link here)
+LinkedIn: https://www.linkedin.com/in/rodney-swaji-9b4132234/
