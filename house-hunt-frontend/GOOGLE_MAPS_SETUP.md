@@ -14,7 +14,7 @@ Visit: https://console.cloud.google.com/
 ### 3. Enable Required APIs
 - Go to "APIs & Services" → "Library"
 - Search and enable these APIs:
-  - **Maps JavaScript API**AIzaSyA3chBM2Z6Lxco_rUofAKcLuslklNpV-7c
+  - **Maps JavaScript API**
   - **Geocoding API**
   - **Places API**
 

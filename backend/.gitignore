@@ -11,6 +11,7 @@ build/
 env/
 venv/
 .env
+.env.*
 
 # Django
 *.log
@@ -21,4 +22,4 @@ staticfiles/
 
 # OS
 .DS_Store
-Thumbs.db.env
+Thumbs.db

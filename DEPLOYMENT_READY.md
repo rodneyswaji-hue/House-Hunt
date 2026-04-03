@@ -45,7 +45,7 @@ npm run dev
    - `AWS_ACCESS_KEY_ID` - Your AWS credentials
    - `AWS_SECRET_ACCESS_KEY` - Your AWS credentials
    - `AWS_S3_BUCKET_NAME` - Your S3 bucket name
-   - `CLOUDFRONT_DOMAIN` - Your CloudFront domain (already set: d9sc8h5z8v6hy.cloudfront.net)
+   - `CLOUDFRONT_DOMAIN` - Your CloudFront domain
 
 2. **Database is ready** ✅
    - PostgreSQL configuration in render.yaml

@@ -84,7 +84,7 @@ git push origin main
    AWS_SECRET_ACCESS_KEY=<your-aws-secret>
    AWS_S3_BUCKET_NAME=househunt-media
    AWS_S3_REGION=eu-north-1
-   CLOUDFRONT_DOMAIN=d9sc8h5z8v6hy.cloudfront.net
+   CLOUDFRONT_DOMAIN=<your-cloudfront-domain>.cloudfront.net
    AT_USERNAME=sandbox
    AT_API_KEY=<your-africastalking-key>
    ```
