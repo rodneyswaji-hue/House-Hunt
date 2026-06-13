@@ -1,13 +1,16 @@
-// app/page.tsx  — Landing Page
-// SEO metadata exported for Next.js
+// app/page.tsx — Landing Page
 import type { Metadata } from "next";
-import Navbar from "@/components/ui/Navbar";
+import LandingNavbar from "@/components/landing/LandingNavbar";
 import Footer from "@/components/ui/Footer";
 import HeroSection from "@/components/landing/HeroSection";
 import {
+  StatsBar,
+  HowItWorksSection,
   FeaturesSection,
   HighlightsSection,
+  LandlordCTASection,
   TestimonialsSection,
+  FinalCTASection,
 } from "@/components/landing/LandingSections";
 
 export const metadata: Metadata = {
@@ -27,12 +30,16 @@ export const metadata: Metadata = {
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <LandingNavbar />
       <main className="flex-grow">
         <HeroSection />
+        <StatsBar />
+        <HowItWorksSection />
         <FeaturesSection />
         <HighlightsSection />
+        <LandlordCTASection />
         <TestimonialsSection />
+        <FinalCTASection />
       </main>
       <Footer />
     </div>
