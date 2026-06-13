@@ -12,6 +12,13 @@ from .serializers import HouseListSerializer, HouseCreateSerializer, HouseUpdate
 @permission_classes([IsAuthenticatedOrReadOnly])
 def house_list_create(request):
     if request.method == "GET":
+        # If ?mine=true, return only the authenticated landlord's houses
+        if request.query_params.get("mine") == "true":
+            if not request.user.is_authenticated:
+                return Response({"detail": "Authentication required."}, status=401)
+            qs = House.objects.prefetch_related("images", "video").filter(landlord=request.user)
+            return Response(HouseListSerializer(qs, many=True).data)
+
         qs = House.objects.prefetch_related("images", "video").all()
         location = request.query_params.get("location")
         bedrooms = request.query_params.get("bedrooms")
