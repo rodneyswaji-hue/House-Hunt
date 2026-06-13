@@ -63,6 +63,8 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError({"detail": "Invalid credentials."})
         if not landlord.is_active:
             raise serializers.ValidationError({"detail": "Account is disabled."})
+        if landlord.is_banned:
+            raise serializers.ValidationError({"detail": "Your account has been suspended."})
 
         attrs["landlord"] = landlord
         return attrs
