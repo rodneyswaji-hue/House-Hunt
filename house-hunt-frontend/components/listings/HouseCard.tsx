@@ -25,7 +25,6 @@ interface HouseCardProps {
   house: House;
 }
 
-const MAX_BOOKINGS = 5;
 const STORAGE_KEY = "hh_bookings";
 
 // ─── Availability badge ───────────────────────────────────────────────────
@@ -94,8 +93,6 @@ export default function HouseCard({ house }: HouseCardProps) {
     [images.length]
   );
 
-  // Submit notification booking (stores locally until Django backend is wired)
-  // 🔌 DJANGO: Replace localStorage block with POST /api/bookings/
   const handleBooking = async () => {
     setBookingMsg("");
     if (!/^07\d{8}$/.test(bookingPhone)) {
@@ -105,28 +102,24 @@ export default function HouseCard({ house }: HouseCardProps) {
     }
 
     try {
-      // ─── Django integration point ────────────────────────────────────
-      // Uncomment when backend is ready:
-      //
-      // const res = await fetch("/api/bookings", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ houseId: house.id, phone: bookingPhone }),
-      // });
-      // if (!res.ok) throw new Error("Booking failed");
-      // ─────────────────────────────────────────────────────────────────
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ houseId: house.id, phone: bookingPhone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setBookingStatus("error");
+        setBookingMsg(data.error ?? "Booking failed. Please try again.");
+        return;
+      }
 
-      // Temporary local storage fallback
+      // Persist locally so the button stays disabled on revisit
       const stored: { houseId: string; phone: string }[] = JSON.parse(
         localStorage.getItem(STORAGE_KEY) ?? "[]"
       );
-      if (stored.length >= MAX_BOOKINGS) {
-        setBookingStatus("error");
-        setBookingMsg("You've reached the limit of 5 active bookings.");
-        return;
-      }
-      const updated = [...stored, { houseId: house.id, phone: bookingPhone }];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...stored, { houseId: house.id, phone: bookingPhone }]));
+
       setIsBooked(true);
       setBookingStatus("success");
       setBookingMsg(`You'll be notified when ${house.title} has a change.`);
