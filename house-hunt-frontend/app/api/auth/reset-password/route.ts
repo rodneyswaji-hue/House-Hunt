@@ -13,10 +13,8 @@ export async function POST(req: NextRequest) {
     });
     const data = await res.json();
     if (!res.ok) {
-      return NextResponse.json(
-        { error: data.detail ?? "Reset failed" },
-        { status: 400 }
-      );
+      const errorMsg = data.detail ?? data.non_field_errors?.[0] ?? "Reset failed";
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
     return NextResponse.json({ message: "Password reset successfully" });
   } catch {

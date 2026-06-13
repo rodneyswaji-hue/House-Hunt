@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
     });
     const data = await res.json();
     if (!res.ok) {
-      return NextResponse.json({ error: data.detail ?? "Invalid OTP" }, { status: 400 });
+      const errorMsg = data.detail ?? data.non_field_errors?.[0] ?? "Invalid OTP";
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
     return NextResponse.json({ message: "OTP verified" });
   } catch {

@@ -13,10 +13,9 @@ export async function POST(req: NextRequest) {
     });
     const data = await res.json();
     if (!res.ok) {
-      return NextResponse.json(
-        { error: data.detail ?? "Phone number not found" },
-        { status: 400 }
-      );
+      // Django validation errors can be nested under phone field
+      const errorMsg = data.detail ?? data.phone?.[0] ?? data.non_field_errors?.[0] ?? "Phone number not found";
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
     return NextResponse.json({ message: "OTP sent" });
   } catch {
