@@ -50,7 +50,7 @@ export default function DashboardOverviewClient() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/houses")
+    fetch("/api/houses?mine=true")
       .then((r) => r.json())
       .then((data: House[]) => { setHouses(data); setLoading(false); })
       .catch(() => setLoading(false));

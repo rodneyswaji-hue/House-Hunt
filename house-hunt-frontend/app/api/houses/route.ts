@@ -7,14 +7,23 @@ import { cookies } from "next/headers";
 const DJANGO_API = process.env.DJANGO_API_URL ?? "http://localhost:8000/api";
 
 // Public — no auth needed for browsing
-// Forwards query params (?location=&bedrooms=&max_price=&available=) to Django
+// Forwards query params (?location=&bedrooms=&max_price=&available=&mine=) to Django
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+    const isMine = searchParams.get("mine") === "true";
     const query = searchParams.toString();
+
+    const headers: Record<string, string> = {};
+    if (isMine) {
+      const token = (await cookies()).get("landlord_token")?.value;
+      if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const res = await fetch(
       `${DJANGO_API}/houses/${query ? `?${query}` : ""}`,
-      { next: { revalidate: 30 } } // ISR: 30s keeps listings fresh + SEO happy
+      { headers, next: { revalidate: isMine ? 0 : 30 } }
     );
     if (!res.ok) throw new Error(`Django ${res.status}`);
     const data = await res.json();

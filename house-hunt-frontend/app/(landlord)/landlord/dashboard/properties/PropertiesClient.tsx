@@ -81,7 +81,7 @@ export default function PropertiesClient() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/houses");
+      const res = await fetch("/api/houses?mine=true");
       if (!res.ok) throw new Error();
       setHouses(await res.json());
     } catch {
