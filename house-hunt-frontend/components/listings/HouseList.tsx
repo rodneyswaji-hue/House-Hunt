@@ -33,6 +33,7 @@ export default function HouseList({ filters }: HouseListProps) {
   const [houses, setHouses] = useState<House[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     setLoading(true);
@@ -61,7 +62,7 @@ export default function HouseList({ filters }: HouseListProps) {
         setError("Could not load listings. Please try again.");
         setLoading(false);
       });
-  }, [filters]);
+  }, [filters, retryCount]);
 
   if (loading) {
     return (
@@ -77,7 +78,7 @@ export default function HouseList({ filters }: HouseListProps) {
         <RefreshCw size={40} className="text-red-400 mb-3" />
         <p className="text-red-600 font-medium">{error}</p>
         <button
-          onClick={() => setLoading(true)}
+          onClick={() => setRetryCount((c) => c + 1)}
           className="mt-4 text-sm text-blue-600 hover:underline"
         >
           Try again
