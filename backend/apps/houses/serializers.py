@@ -117,9 +117,10 @@ class HouseUpdateSerializer(serializers.ModelSerializer):
         # 3. Handle Video Updates
         if video_url is not None:
             if hasattr(instance, 'video'):
-                instance.video.delete() # Triggers S3 cleanup signal
+                instance.video.delete()
             HouseVideo.objects.create(house=instance, url=video_url)
-        elif video_url is None and hasattr(instance, 'video'):
-             instance.video.delete()
+        elif 'video' in validated_data and video_url is None:
+            if hasattr(instance, 'video'):
+                instance.video.delete()
 
         return instance
