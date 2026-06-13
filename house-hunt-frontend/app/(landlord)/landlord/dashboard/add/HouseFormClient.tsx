@@ -232,21 +232,20 @@ export default function HouseFormClient() {
   const handleAddImage = useCallback(async (file: File) => {
     const preview = URL.createObjectURL(file);
     const placeholder: UploadedFile = { publicUrl: "", name: file.name, preview, uploading: true };
-    setImages((prev) => [...prev, placeholder]);
-    const idx = images.length; // capture index
-
-    try {
-      const url = await uploadToS3(file);
-      setImages((prev) =>
-        prev.map((f, i) => i === idx ? { ...f, publicUrl: url, uploading: false } : f)
-      );
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Upload failed";
-      setImages((prev) =>
-        prev.map((f, i) => i === idx ? { ...f, uploading: false, error: msg } : f)
-      );
-    }
-  }, [images.length]);
+    setImages((prev) => {
+      const updated = [...prev, placeholder];
+      const idx = updated.length - 1;
+      uploadToS3(file)
+        .then((url) => {
+          setImages((p) => p.map((f, i) => i === idx ? { ...f, publicUrl: url, uploading: false } : f));
+        })
+        .catch((err) => {
+          const msg = err instanceof Error ? err.message : "Upload failed";
+          setImages((p) => p.map((f, i) => i === idx ? { ...f, uploading: false, error: msg } : f));
+        });
+      return updated;
+    });
+  }, []);
 
   const handleRemoveImage = (i: number) => {
     setImages((prev) => prev.filter((_, idx) => idx !== i));
