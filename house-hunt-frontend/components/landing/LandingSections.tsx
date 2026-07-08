@@ -61,9 +61,9 @@ function AnimatedCounter({
 
 const stats = [
   { label: "Verified listings", value: 500, suffix: "+" },
-  { label: "Neighbourhoods", value: 47, suffix: "" },
-  { label: "Agent fees", value: 0, suffix: "", display: "KSh 0" },
-  { label: "New listings", value: 24, suffix: "/7" },
+  { label: "Neighbourhoods covered", value: 47, suffix: "" },
+  { label: "Commission charged", value: 0, suffix: "", display: "KSh 0" },
+  { label: "New listings weekly", value: 24, suffix: "+" },
 ];
 
 export function StatsBar() {
@@ -102,20 +102,20 @@ const steps = [
   {
     num: "01",
     icon: <Search size={22} />,
-    title: "Search by area",
-    desc: "Filter by neighbourhood, price, and bedroom count across Nairobi and beyond.",
+    title: "Search your area",
+    desc: "Filter by neighbourhood, price range, and bedroom count across Nairobi and beyond.",
   },
   {
     num: "02",
     icon: <Home size={22} />,
-    title: "Browse verified homes",
-    desc: "Every listing includes real photos, exact location, and landlord details.",
+    title: "Explore verified homes",
+    desc: "Every listing includes real photos, exact location, and verified landlord details.",
   },
   {
     num: "03",
     icon: <Phone size={22} />,
-    title: "Contact directly",
-    desc: "Call or message the landlord directly. No agents, no middlemen, no extra fees.",
+    title: "Move in with confidence",
+    desc: "Connect directly with landlords. No agents, no middlemen, no surprise fees.",
   },
 ];
 
@@ -130,10 +130,10 @@ export function HowItWorksSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            How it works
+            Renting made simple
           </h2>
           <p className="text-gray-400 max-w-sm mx-auto">
-            Three simple steps to your next home
+            Three steps to your next home — no agent required
           </p>
         </motion.div>
 
@@ -169,20 +169,20 @@ const audienceFeatures = [
   {
     img: "/houseImage.jpeg",
     tag: "Tenants",
-    title: "Find your ideal home",
-    body: "Advanced filters and a seamless interface make it effortless to find the perfect rental home across Nairobi and beyond.",
+    title: "Find a home you'll love",
+    body: "Smart filters, real photos, and exact locations make it easy to find the right rental — without the runaround.",
   },
   {
     img: "/landlordSoftware.jpeg",
     tag: "Landlords",
-    title: "Reach thousands of tenants",
-    body: "List your rental property in minutes and get direct tenant enquiries with zero commission.",
+    title: "Fill vacancies faster",
+    body: "List your property in minutes. Get direct enquiries from serious tenants — zero commission, zero middlemen.",
   },
   {
     img: "/imagesPerson.jpeg",
     tag: "Investors",
     title: "Grow your portfolio",
-    body: "Discover lucrative rental properties and grow your real estate portfolio with data-driven insights.",
+    body: "Discover high-yield rental properties across Nairobi and make data-informed decisions for your real estate portfolio.",
   },
 ];
 
@@ -197,10 +197,10 @@ export function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            Built for everyone
+            For every type of renter
           </h2>
           <p className="text-gray-400 max-w-sm mx-auto">
-            Whether you rent, lease, or invest
+            Whether you&apos;re a tenant, landlord, or investor
           </p>
         </motion.div>
 
@@ -244,18 +244,18 @@ export function FeaturesSection() {
 const highlights = [
   {
     icon: <Target size={22} />,
-    title: "Personalised search",
-    desc: "Filters built for how Kenyans actually search — by estate, by budget, by commute time.",
+    title: "Search built for Kenya",
+    desc: "Filter by estate, budget, and bedroom count — the way Kenyans actually look for homes.",
   },
   {
     icon: <BarChart2 size={22} />,
-    title: "Market insights",
-    desc: "Know what fair rent looks like in any neighbourhood before you commit.",
+    title: "Transparent pricing",
+    desc: "See what fair rent looks like in any neighbourhood before you sign anything.",
   },
   {
     icon: <Users size={22} />,
-    title: "Real support",
-    desc: "A real team behind the platform, not a chatbot. We pick up the phone.",
+    title: "Real people, real support",
+    desc: "A dedicated team behind every listing. We answer questions and resolve issues fast.",
   },
 ];
 
@@ -270,9 +270,9 @@ export function HighlightsSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            Why HouseHunt?
+            Why choose HouseHunt?
           </h2>
-          <p className="text-gray-400 max-w-sm mx-auto">What makes us different</p>
+          <p className="text-gray-400 max-w-sm mx-auto">The smarter way to rent in Kenya</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -326,11 +326,11 @@ export function LandlordCTASection() {
             For landlords
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-snug tracking-tight">
-            List your property.<br />
-            Reach thousands of tenants.
+            Are you a landlord?<br />
+            Start listing for free.
           </h2>
           <p className="text-blue-100 mb-8 max-w-md leading-relaxed text-sm">
-            Post your rental in minutes. No commission, no middlemen. Tenants contact you directly through HouseHunt.
+            Post your rental in minutes. Tenants contact you directly — no commission, no middlemen, no waiting.
           </p>
           <Link
             href="/landlord/register"
@@ -396,10 +396,10 @@ export function TestimonialsSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            What renters say
+            Trusted by renters across Kenya
           </h2>
           <p className="text-gray-400 max-w-sm mx-auto">
-            Real experiences from across Nairobi
+            Real stories from real people who found their home on HouseHunt
           </p>
         </motion.div>
 
@@ -451,10 +451,10 @@ export function FinalCTASection() {
         className="max-w-xl mx-auto"
       >
         <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight tracking-tight">
-          Ready to find<br />your home?
+          Your next home<br />is one search away.
         </h2>
         <p className="text-gray-400 mb-10 text-base">
-          Join thousands of Kenyans who found their rental without paying an agent.
+          Join thousands of Kenyans who found their perfect rental — no agent, no commission.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
