@@ -4,7 +4,7 @@ import LandingNavbar from "@/components/landing/LandingNavbar";
 import Footer from "@/components/ui/Footer";
 import HeroSection from "@/components/landing/HeroSection";
 import {
-  StatsBar,
+  
   HowItWorksSection,
   FeaturesSection,
   HighlightsSection,
@@ -33,7 +33,7 @@ export default function LandingPage() {
       <LandingNavbar />
       <main className="flex-grow">
         <HeroSection />
-        <StatsBar />
+        
         <HowItWorksSection />
         <FeaturesSection />
         <HighlightsSection />

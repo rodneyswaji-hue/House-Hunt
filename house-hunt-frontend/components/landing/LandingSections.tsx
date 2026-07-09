@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
+
+import { motion, useInView} from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import {
   Search,
@@ -11,6 +12,8 @@ import {
   Target,
   BarChart2,
   Users,
+  ShieldCheck,
+  PhoneCall,
   Star,
   Building2,
   ArrowRight,
@@ -475,4 +478,247 @@ export function FinalCTASection() {
       </motion.div>
     </section>
   );
+}
+
+//ExploreNeighborhoods
+const neighborhoods = [
+  {
+    name: "Westlands",
+    image:
+      "https://images.unsplash.com/photo-1519501025264-65ba15a82390",
+    homes: 2430,
+  },
+  {
+    name: "Kilimani",
+    image:
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab",
+    homes: 3187,
+  },
+  {
+    name: "Kileleshwa",
+    image:
+      "https://images.unsplash.com/photo-1460317442991-0ec209397118",
+    homes: 1472,
+  },
+  {
+    name: "Lavington",
+    image:
+      "https://images.unsplash.com/photo-1448630360428-65456885c650",
+    homes: 1880,
+  },
+  {
+    name: "South B",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156",
+    homes: 968,
+  },
+];
+
+export function ExploreNeighborhoods() {
+  const navigate = useNavigate();
+
+  return (
+    <section className="py-24 bg-white">
+
+      <div className="max-w-7xl mx-auto px-6">
+
+        <div className="text-center mb-14">
+          <h2 className="text-4xl font-bold">
+            Explore Nairobi Neighborhoods
+          </h2>
+
+          <p className="text-gray-500 mt-3">
+            Discover apartments in Nairobi's most popular locations.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-8">
+
+          {neighborhoods.map((item) => (
+
+            <div
+              key={item.name}
+              onClick={() =>
+                navigate(`/properties?location=${item.name}`)
+              }
+              className="group relative rounded-3xl overflow-hidden cursor-pointer h-[320px]"
+            >
+
+              <img
+                src={item.image}
+                className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"/>
+
+              <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center">
+
+                <div>
+
+                  <h3 className="text-white font-semibold text-2xl">
+                    {item.name}
+                  </h3>
+
+                  <p className="text-white/80">
+                    {item.homes.toLocaleString()} Properties
+                  </p>
+
+                </div>
+
+                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+
+                  <ArrowRight />
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </div>
+
+    </section>
+  );
+}
+
+// call for landlords
+
+export  function ListPropertyCTA() {
+
+    const navigate = useNavigate();
+
+    return (
+    <section className="bg-gradient-to-r from-blue-700 to-indigo-700 py-24">
+
+      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+
+        <div>
+
+          <span className="inline-flex px-4 py-2 rounded-full bg-white/20 text-white mb-6">
+            For Landlords & Property Sellers
+          </span>
+
+          <h2 className="text-5xl font-bold text-white leading-tight">
+
+            Have a Property to Rent or Sell?
+
+          </h2>
+
+          <p className="text-blue-100 mt-6 text-lg">
+
+          Reach thousands of active apartment seekers across Nairobi.
+          List your property in minutes and connect directly with verified
+          buyers and tenants.
+
+          </p>
+
+            <div className="space-y-5 mt-10">
+
+              <div className="flex gap-4">
+
+                <Home className="text-white"/>
+
+                  <div>
+
+                    <h4 className="text-white font-semibold">
+
+                      Free Property Listings
+
+                      </h4>
+
+                      <p className="text-blue-100">
+
+                      Publish apartments, houses and plots in minutes.
+
+                      </p>
+
+                  </div>
+
+              </div>
+
+                  <div className="flex gap-4">
+
+                    <PhoneCall className="text-white"/>
+
+                      <div>
+
+                        <h4 className="text-white font-semibold">
+
+                         Receive Direct Enquiries
+
+                        </h4>
+
+                        <p className="text-blue-100">
+
+                        Interested tenants contact you directly.
+
+                        </p>
+
+                      </div>
+
+                  </div>
+
+                  <div className="flex gap-4">
+
+<ShieldCheck className="text-white"/>
+
+<div>
+
+<h4 className="text-white font-semibold">
+
+Verified Platform
+
+</h4>
+
+<p className="text-blue-100">
+
+Increase trust with verified listings.
+
+</p>
+
+</div>
+
+                  </div>
+
+                </div>
+
+<div className="mt-12 flex gap-4">
+
+<button
+onClick={() => navigate("/list-property")}
+className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:shadow-xl">
+
+List Your Property
+
+</button>
+
+<button
+onClick={() => navigate("/about")}
+className="border border-white text-white px-8 py-4 rounded-xl">
+
+Learn More
+
+</button>
+
+</div>
+
+</div>
+
+<div>
+
+<img
+src="/images/landlord.png"
+className="w-full"/>
+
+</div>
+
+</div>
+
+</section>
+
+    );
 }
