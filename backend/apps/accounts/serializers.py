@@ -120,3 +120,17 @@ class ResetPasswordSerializer(serializers.Serializer):
 
         attrs["landlord"] = landlord
         return attrs
+
+
+class LandlordAdminSerializer(serializers.ModelSerializer):
+    """Full landlord record for the admin dashboard — includes ban state."""
+    house_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Landlord
+        fields = [
+            "id", "name", "phone", "email", "is_banned", "ban_reason",
+            "banned_at", "banned_by", "is_active", "is_staff",
+            "house_count", "created_at",
+        ]
+        read_only_fields = fields

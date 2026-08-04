@@ -13,6 +13,38 @@ export interface Coordinates {
   lng: number;
 }
 
+/** Dwelling kind — stored separately from the bedroom count, because
+ *  studios, bedsitters and single rooms all have zero bedrooms. */
+export type PropertyType =
+  | "single_room"
+  | "bedsitter"
+  | "studio"
+  | "apartment"
+  | "maisonette"
+  | "bungalow"
+  | "townhouse"
+  | "villa"
+  | "penthouse"
+  | "servant_quarter";
+
+/** Value/label pairs, ordered smallest-to-largest for the UI. */
+export const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
+  { value: "single_room", label: "Single Room" },
+  { value: "bedsitter", label: "Bedsitter" },
+  { value: "studio", label: "Studio Apartment" },
+  { value: "apartment", label: "Apartment / Flat" },
+  { value: "maisonette", label: "Maisonette" },
+  { value: "bungalow", label: "Bungalow" },
+  { value: "townhouse", label: "Townhouse" },
+  { value: "villa", label: "Villa" },
+  { value: "penthouse", label: "Penthouse" },
+  { value: "servant_quarter", label: "Servant Quarter (SQ)" },
+];
+
+export function propertyTypeLabel(value?: string) {
+  return PROPERTY_TYPES.find((t) => t.value === value)?.label ?? "Property";
+}
+
 export interface House {
   id: string;
   title: string;
@@ -20,15 +52,22 @@ export interface House {
   price: number;
   available: boolean;
   units: number;
-  bedrooms: 0 | 1 | 2 | 3; // 0 = bedsitter
+  /** A count, 0-5 (5 means 5 or more). Not a type — see property_type. */
+  bedrooms: number;
+  property_type: PropertyType;
+  /** Human-readable label supplied by Django. */
+  property_type_display?: string;
   images: string[];          // AWS S3 URLs
   video?: string;            // AWS S3 URL
   landlord: {
     id: number;
     name: string;
-    phone: string;
+    /** null when the landlord account has been suspended */
+    phone: string | null;
   };
-  coordinates: Coordinates;
+  /** null when the landlord never set a map location for the property */
+  coordinates: Coordinates | null;
+  is_banned?: boolean;
   description?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -43,7 +82,10 @@ export interface Booking {
 
 export interface HouseFilters {
   location?: string;
-  bedrooms?: string;   // "0" | "1" | "2" | "3" | ""
+  /** Minimum bedroom count, as a string. "" or undefined means any. */
+  bedrooms?: string;
+  /** A PropertyType value; "" or undefined means any. */
+  property_type?: string;
   max_price?: string;
   available?: boolean;
 }

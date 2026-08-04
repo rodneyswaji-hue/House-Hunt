@@ -14,6 +14,7 @@ import {
   BedDouble,
   Loader2,
   AlertTriangle,
+  Pencil,
 } from "lucide-react";
 import type { House } from "@/lib/types";
 
@@ -83,7 +84,8 @@ export default function PropertiesClient() {
     try {
       const res = await fetch("/api/houses?mine=true");
       if (!res.ok) throw new Error();
-      setHouses(await res.json());
+      const data = await res.json();
+      setHouses(Array.isArray(data) ? data : []);
     } catch {
       setError("Failed to load properties. Please refresh.");
     } finally {
@@ -263,6 +265,16 @@ export default function PropertiesClient() {
                     )}
                     {house.available ? "Available" : "Mark Available"}
                   </button>
+
+                  {/* Edit */}
+                  <Link
+                    href={`/landlord/dashboard/properties/${house.id}/edit`}
+                    title="Edit property"
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                  >
+                    <Pencil size={14} />
+                    Edit
+                  </Link>
 
                   {/* Delete */}
                   <button

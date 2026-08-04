@@ -89,6 +89,8 @@ export default function AdminDashboard() {
     try {
       const res = await fetch("/api/admin");
       if (res.status === 403) { setError("Admin access required."); return; }
+      if (res.status === 401) { setError("Please sign in as an admin."); return; }
+      if (!res.ok) { setError("Failed to load stats."); return; }
       setStats(await res.json());
     } catch { setError("Failed to load stats."); }
   }, []);
@@ -96,21 +98,24 @@ export default function AdminDashboard() {
   const loadLandlords = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/landlords");
-      setLandlords(await res.json());
+      const data = await res.json();
+      setLandlords(Array.isArray(data) ? data : []);
     } catch {}
   }, []);
 
   const loadFeedback = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/feedback");
-      setReviews(await res.json());
+      const data = await res.json();
+      setReviews(Array.isArray(data) ? data : []);
     } catch {}
   }, []);
 
   const loadAudit = useCallback(async () => {
     try {
       const res = await fetch("/api/audit");
-      setAuditLogs(await res.json());
+      const data = await res.json();
+      setAuditLogs(Array.isArray(data) ? data : []);
     } catch {}
   }, []);
 
@@ -161,8 +166,8 @@ export default function AdminDashboard() {
   };
 
   const filteredLandlords = landlords.filter((l) =>
-    l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.phone.includes(searchQuery)
+    (l.name ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (l.phone ?? "").includes(searchQuery)
   );
 
   if (loading) return (

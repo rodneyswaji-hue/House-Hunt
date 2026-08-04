@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -10,7 +11,13 @@ import {
   ArrowRight,
   ShieldCheck,
   Wifi,
+  ExternalLink,
 } from "lucide-react";
+
+const AllHousesMap = dynamic(
+  () => import("@/components/listings/MapView").then((m) => m.AllHousesMap),
+  { ssr: false, loading: () => <div className="w-full h-full bg-gradient-to-br from-blue-50 to-slate-100 animate-pulse" /> }
+);
 import type { House } from "@/lib/types";
 
 // ─── Featured Rental Card ─────────────────────────────────────────────────
@@ -171,6 +178,17 @@ function FeaturedRentals() {
 
 export default function HeroSection() {
   const [search, setSearch] = useState("");
+  const [heroHouses, setHeroHouses] = useState<import("@/lib/types").House[]>([]);
+
+  useEffect(() => {
+    fetch("/api/houses?limit=20")
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.results ?? [];
+        setHeroHouses(list.filter((h: import("@/lib/types").House) => h.coordinates?.lat && h.coordinates?.lng));
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section className="relative bg-white overflow-hidden">
@@ -269,36 +287,48 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* Right — video (narrower) */}
+        {/* Right — Live Map */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="relative lg:w-[45%] min-h-[50vh] lg:min-h-full overflow-hidden"
         >
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-            poster="/nairobi2.jpg"
+          {/* Mobile: tap-to-open map teaser */}
+          <Link
+            href="/listings/map"
+            className="lg:hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-blue-900/60 backdrop-blur-sm gap-3"
           >
-            <source src="/istockphoto-2149800829-640_adpp_is.mp4" type="video/mp4" />
-          </video>
-          {/* Subtle left-edge fade to blend with white */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent lg:block hidden" />
-          <div className="absolute inset-0 bg-blue-950/20" />
+            <div className="bg-white rounded-2xl px-6 py-4 shadow-2xl flex flex-col items-center gap-2">
+              <MapPin size={28} className="text-blue-600" />
+              <span className="text-gray-900 font-bold text-base">Explore on Map</span>
+              <span className="text-gray-500 text-xs">Tap to browse listings</span>
+              <span className="flex items-center gap-1 text-blue-600 text-xs font-semibold">
+                Open full map <ExternalLink size={11} />
+              </span>
+            </div>
+          </Link>
 
-          {/* Floating stat pill */}
+          {/* Left-edge fade to blend with white panel */}
+          <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-white to-transparent z-10 lg:block hidden pointer-events-none" />
+
+          {/* Live map — desktop interactive, mobile blurred preview */}
+          <div className="absolute inset-0">
+            <AllHousesMap houses={heroHouses} compact />
+          </div>
+
+          {/* Floating pill */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-2xl px-5 py-3 shadow-xl flex items-center gap-3 whitespace-nowrap"
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 bg-white/95 backdrop-blur-sm rounded-2xl px-5 py-3 shadow-xl flex items-center gap-3 whitespace-nowrap"
           >
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-sm font-semibold text-gray-800">New listings added daily</span>
+            <span className="text-sm font-semibold text-gray-800">Live listings on map</span>
+            <Link href="/listings/map" className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-0.5">
+              Explore <ExternalLink size={10} />
+            </Link>
           </motion.div>
         </motion.div>
       </div>

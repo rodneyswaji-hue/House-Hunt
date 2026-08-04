@@ -50,9 +50,13 @@ export default function DashboardOverviewClient() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // A 401 returns { error } — guard so the stats below don't throw.
     fetch("/api/houses?mine=true")
-      .then((r) => r.json())
-      .then((data: House[]) => { setHouses(data); setLoading(false); })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        setHouses(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 

@@ -102,7 +102,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ── Django REST Framework ──────────────────────────────────────────────────
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # Resolves a token against Landlord or Tenant based on its user_type
+        # claim. Plain JWTAuthentication resolves every token against
+        # AUTH_USER_MODEL, which let tenant tokens authenticate as landlords.
+        "apps.accounts.authentication.MultiUserJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",

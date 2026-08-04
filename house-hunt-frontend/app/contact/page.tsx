@@ -6,7 +6,7 @@ import Footer from "@/components/ui/Footer";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -24,10 +24,19 @@ export default function ContactPage() {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) throw new Error("Failed to send message");
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const first =
+          data.error ??
+          data.detail ??
+          (Object.values(data).flat()[0] as string | undefined);
+        setError(first ?? "Failed to send message. Please try again.");
+        return;
+      }
 
       setSuccess("Message sent! We'll get back to you soon.");
-      setFormData({ name: "", email: "", message: "" });
+      setFormData({ name: "", email: "", subject: "", message: "" });
     } catch {
       setError("Failed to send message. Please try again.");
     } finally {
@@ -41,7 +50,7 @@ export default function ContactPage() {
       <main className="flex-grow bg-gray-50 py-16">
         <div className="max-w-6xl mx-auto px-4">
           <h1 className="text-4xl font-bold text-center mb-4">Contact Us</h1>
-          <p className="text-center text-gray-600 mb-12">Have questions? We'd love to hear from you.</p>
+          <p className="text-center text-gray-600 mb-12">Have questions? We&apos;d love to hear from you.</p>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Contact Info */}
@@ -112,6 +121,19 @@ export default function ContactPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Subject</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={255}
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="What is this about?"
                   />
                 </div>
 

@@ -1,14 +1,20 @@
 "use client";
 
 // components/listings/HouseList.tsx
-import { useState, useEffect } from "react";
+// Presentational only — listings are fetched once by the parent (useHouses)
+// and shared with the map, so the grid and the pins can never disagree.
 import { motion } from "framer-motion";
 import { Home, RefreshCw } from "lucide-react";
 import HouseCard from "./HouseCard";
-import type { House, HouseFilters } from "@/lib/types";
+import type { House } from "@/lib/types";
 
 interface HouseListProps {
-  filters: HouseFilters;
+  houses: House[];
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+  /** Raised when a card is hovered, so the matching map pin can highlight. */
+  onHoverHouse?: (id: string | null) => void;
 }
 
 function SkeletonCard() {
@@ -29,41 +35,13 @@ function SkeletonCard() {
   );
 }
 
-export default function HouseList({ filters }: HouseListProps) {
-  const [houses, setHouses] = useState<House[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    // Build query string from filters — forwarded to Django via /api/houses
-    const params = new URLSearchParams();
-    if (filters.location) params.set("location", filters.location);
-    if (filters.bedrooms) params.set("bedrooms", filters.bedrooms);
-    if (filters.max_price) params.set("max_price", filters.max_price);
-    if (filters.available !== undefined) params.set("available", String(filters.available));
-
-    const query = params.toString();
-
-    fetch(`/api/houses${query ? `?${query}` : ""}`)
-      .then((r) => {
-        if (!r.ok) throw new Error("Failed to load listings");
-        return r.json();
-      })
-      .then((data: House[]) => {
-        setHouses(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Could not load listings. Please try again.");
-        setLoading(false);
-      });
-  }, [filters, retryCount]);
-
+export default function HouseList({
+  houses,
+  loading,
+  error,
+  onRetry,
+  onHoverHouse,
+}: HouseListProps) {
   if (loading) {
     return (
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
@@ -78,7 +56,7 @@ export default function HouseList({ filters }: HouseListProps) {
         <RefreshCw size={40} className="text-red-400 mb-3" />
         <p className="text-red-600 font-medium">{error}</p>
         <button
-          onClick={() => setRetryCount((c) => c + 1)}
+          onClick={onRetry}
           className="mt-4 text-sm text-blue-600 hover:underline"
         >
           Try again
@@ -110,7 +88,9 @@ export default function HouseList({ filters }: HouseListProps) {
             key={house.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.35 }}
+            transition={{ delay: Math.min(i, 8) * 0.06, duration: 0.35 }}
+            onMouseEnter={() => onHoverHouse?.(String(house.id))}
+            onMouseLeave={() => onHoverHouse?.(null)}
           >
             <HouseCard house={house} />
           </motion.div>

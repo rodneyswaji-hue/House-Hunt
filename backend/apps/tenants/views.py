@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from apps.accounts.authentication import TENANT, tag_token
 from .models import Tenant
 from .serializers import TenantRegisterSerializer, TenantLoginSerializer, TenantProfileSerializer
 
@@ -25,7 +26,7 @@ def login(request):
     serializer = TenantLoginSerializer(data=request.data)
     if serializer.is_valid():
         tenant = serializer.validated_data["tenant"]
-        refresh = RefreshToken.for_user(tenant)
+        refresh = tag_token(RefreshToken.for_user(tenant), TENANT)
         return Response({
             "token": str(refresh.access_token),
             "refresh": str(refresh),

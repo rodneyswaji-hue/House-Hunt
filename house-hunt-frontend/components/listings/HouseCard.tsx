@@ -16,10 +16,12 @@ import {
   X,
   CheckCircle,
   AlertCircle,
-  Eye,
-  EyeOff,
+  ImageOff,
+  Play,
+  Home,
 } from "lucide-react";
 import type { House } from "@/lib/types";
+import { propertyTypeLabel } from "@/lib/types";
 
 interface HouseCardProps {
   house: House;
@@ -45,9 +47,11 @@ function AvailabilityBadge({ available }: { available: boolean }) {
 
 // ─── Bedroom label ────────────────────────────────────────────────────────
 
+// bedrooms is a plain count now — the dwelling kind lives in property_type,
+// so 0 bedrooms no longer implies "bedsitter".
 function bedroomLabel(bedrooms: number) {
-  if (bedrooms === 0) return "Bedsitter";
-  return `${bedrooms} Bed${bedrooms > 1 ? "s" : ""}`;
+  if (bedrooms === 0) return "No separate bedroom";
+  return `${bedrooms}${bedrooms >= 5 ? "+" : ""} Bed${bedrooms > 1 ? "s" : ""}`;
 }
 
 // ─── Main Card ────────────────────────────────────────────────────────────
@@ -62,8 +66,15 @@ export default function HouseCard({ house }: HouseCardProps) {
   const [bookingStatus, setBookingStatus] = useState<"idle" | "success" | "error">("idle");
   const [bookingMsg, setBookingMsg] = useState("");
   const [isBooked, setIsBooked] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
-  const images = house.images?.length ? house.images : ["/placeholder-house.jpg"];
+  // No bundled placeholder file exists — render an inline empty state instead
+  // of pointing <img> at a 404.
+  const images = house.images ?? [];
+  const hasImages = images.length > 0;
+  const hasCoordinates =
+    typeof house.coordinates?.lat === "number" &&
+    typeof house.coordinates?.lng === "number";
 
   // Check if already booked on mount
   useEffect(() => {
@@ -149,20 +160,27 @@ export default function HouseCard({ house }: HouseCardProps) {
       <div className="relative w-full h-60 overflow-hidden bg-gray-100">
         <AvailabilityBadge available={house.available} />
 
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.img
-            key={imgIndex}
-            src={images[imgIndex]}
-            alt={`${house.title} — photo ${imgIndex + 1}`}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ x: { duration: 0.55, ease: "easeInOut" }, opacity: { duration: 0.35 } }}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </AnimatePresence>
+        {hasImages ? (
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.img
+              key={imgIndex}
+              src={images[imgIndex]}
+              alt={`${house.title} — photo ${imgIndex + 1}`}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ x: { duration: 0.55, ease: "easeInOut" }, opacity: { duration: 0.35 } }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </AnimatePresence>
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-blue-50 to-blue-100">
+            <ImageOff size={28} className="text-blue-300" />
+            <span className="text-xs text-blue-400 font-medium">No photos yet</span>
+          </div>
+        )}
 
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
@@ -200,6 +218,19 @@ export default function HouseCard({ house }: HouseCardProps) {
           </>
         )}
 
+        {/* Video tour — the landlord's walkthrough had no way to be watched
+            before this. Shown only when one was uploaded. */}
+        {house.video && (
+          <button
+            onClick={() => setShowVideo(true)}
+            className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full transition"
+            aria-label={`Play video tour of ${house.title}`}
+          >
+            <Play size={12} fill="currentColor" />
+            Video tour
+          </button>
+        )}
+
         {/* Price tag */}
         <div className="absolute bottom-3 right-3 z-20 bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full">
           KES {house.price.toLocaleString()}
@@ -219,9 +250,15 @@ export default function HouseCard({ house }: HouseCardProps) {
         {/* Meta chips */}
         <div className="flex flex-wrap gap-2">
           <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full">
-            <BedDouble size={12} />
-            {bedroomLabel(house.bedrooms)}
+            <Home size={12} />
+            {house.property_type_display ?? propertyTypeLabel(house.property_type)}
           </span>
+          {house.bedrooms > 0 && (
+            <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full">
+              <BedDouble size={12} />
+              {bedroomLabel(house.bedrooms)}
+            </span>
+          )}
           <span className="flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
             <Building2 size={12} />
             {house.units} unit{house.units !== 1 ? "s" : ""}
@@ -250,13 +287,20 @@ export default function HouseCard({ house }: HouseCardProps) {
                 <p className="text-gray-700">
                   <span className="font-semibold">Name: </span>{house.landlord?.name || "—"}
                 </p>
-                <a
-                  href={`tel:${house.landlord?.phone}`}
-                  className="flex items-center gap-1.5 text-blue-700 font-semibold hover:underline"
-                >
-                  <Phone size={13} />
-                  {house.landlord?.phone || "—"}
-                </a>
+                {house.landlord?.phone ? (
+                  <a
+                    href={`tel:${house.landlord.phone}`}
+                    className="flex items-center gap-1.5 text-blue-700 font-semibold hover:underline"
+                  >
+                    <Phone size={13} />
+                    {house.landlord.phone}
+                  </a>
+                ) : (
+                  <p className="flex items-center gap-1.5 text-gray-400">
+                    <Phone size={13} />
+                    Contact unavailable
+                  </p>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -312,24 +356,76 @@ export default function HouseCard({ house }: HouseCardProps) {
             )}
           </AnimatePresence>
 
-          {/* View on Map */}
-          <button
-            onClick={() => router.push(`/listings/map/${house.id}`)}
-            className="w-full flex items-center justify-center gap-2 border border-amber-400 text-amber-700 hover:bg-amber-50 text-sm font-semibold py-2.5 rounded-xl transition"
-          >
-            <MapPin size={15} />
-            View on Map
-          </button>
-          <>
+          {/* Watch video tour */}
+          {house.video && (
+            <button
+              onClick={() => setShowVideo(true)}
+              className="w-full flex items-center justify-center gap-2 border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-semibold py-2.5 rounded-xl transition"
+            >
+              <Play size={15} fill="currentColor" />
+              Watch Video Tour
+            </button>
+          )}
+
+          {/* View on Map — only when the listing actually has a location */}
+          {hasCoordinates && (
+            <button
+              onClick={() => router.push(`/listings/map/${house.id}`)}
+              className="w-full flex items-center justify-center gap-2 border border-amber-400 text-amber-700 hover:bg-amber-50 text-sm font-semibold py-2.5 rounded-xl transition"
+            >
+              <MapPin size={15} />
+              View on Map
+            </button>
+          )}
+
           <ReviewsSection
-            landlordId={house.landlord.id}
-            landlordName={house.landlord.name}
+            landlordId={house.landlord?.id}
+            landlordName={house.landlord?.name ?? "this landlord"}
           />
-          
-          </>
-          
         </div>
       </div>
+
+      {/* ── Video lightbox ── */}
+      <AnimatePresence>
+        {showVideo && house.video && (
+          <motion.div
+            className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowVideo(false)}
+          >
+            <button
+              onClick={() => setShowVideo(false)}
+              className="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition"
+              aria-label="Close video"
+            >
+              <X size={22} />
+            </button>
+
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.94, opacity: 0 }}
+              className="w-full max-w-3xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <video
+                src={house.video}
+                controls
+                autoPlay
+                playsInline
+                className="w-full max-h-[80vh] rounded-xl bg-black"
+              >
+                Your browser cannot play this video.
+              </video>
+              <p className="text-white/70 text-sm mt-3 text-center">
+                {house.title} — {house.location}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

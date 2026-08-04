@@ -9,8 +9,10 @@ type RouteParams = { params: Promise<{ id: string }> };
 export async function GET(_req: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   try {
+    // Not cached: the edit form reads this, and a stale copy would show the
+    // landlord their old values right after they saved.
     const res = await fetch(`${DJANGO_API}/houses/${id}/`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const data = await res.json();
@@ -35,8 +37,10 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       },
       body: JSON.stringify(body),
     });
-    const data = await res.json();
-    return NextResponse.json(data);
+    const data = await res.json().catch(() => ({}));
+    // Forward Django's status — returning 200 on a 400/403 would make the
+    // client think a rejected edit had saved.
+    return NextResponse.json(data, { status: res.status });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
@@ -48,10 +52,15 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    await fetch(`${DJANGO_API}/houses/${id}/`, {
+    const res = await fetch(`${DJANGO_API}/houses/${id}/`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
+    // Same reasoning as PATCH — a refused delete must not report success.
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({ error: "Delete failed" }));
+      return NextResponse.json(data, { status: res.status });
+    }
     return NextResponse.json({ message: "Deleted" }, { status: 200 });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });

@@ -6,8 +6,8 @@ import HeroSection from "@/components/landing/HeroSection";
 import {
   
   HowItWorksSection,
-  FeaturesSection,
-  HighlightsSection,
+  WhyChooseUsSection,
+  
   LandlordCTASection,
   TestimonialsSection,
   FinalCTASection,
@@ -31,12 +31,11 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <LandingNavbar />
-      <main className="flex-grow">
+      <main className="flex-grow mt-15">
         <HeroSection />
         
         <HowItWorksSection />
-        <FeaturesSection />
-        <HighlightsSection />
+        <WhyChooseUsSection />
         <LandlordCTASection />
         <TestimonialsSection />
         <FinalCTASection />

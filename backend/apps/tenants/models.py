@@ -42,3 +42,14 @@ class Tenant(AbstractBaseUser):
 
     def get_identifier(self):
         return self.email or self.phone
+
+    # DRF's IsAdminUser reads .is_staff on whatever is authenticated. Tenants
+    # are never staff — declaring it explicitly avoids an AttributeError 500
+    # on admin endpoints and keeps the answer a hard "no".
+    @property
+    def is_staff(self):
+        return False
+
+    @property
+    def is_superuser(self):
+        return False

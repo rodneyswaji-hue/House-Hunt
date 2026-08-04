@@ -114,14 +114,14 @@ function StarPicker({
                 className={`transition-colors ${
                   active
                     ? "fill-amber-400 text-amber-400"
-                    : "text-slate-600 fill-transparent"
+                    : "text-gray-300 fill-transparent"
                 }`}
               />
             </button>
           );
         })}
       </div>
-      <span className="text-sm text-slate-400 h-5">
+      <span className="text-sm text-gray-400 h-5">
         {(hovered || value) ? STAR_LABELS[hovered || value] : "Tap to rate"}
       </span>
     </div>
@@ -191,16 +191,16 @@ function ProofUploader({
 
   return (
     <div className="space-y-2">
-      <label className="block text-slate-300 text-sm font-medium">
+      <label className="block text-gray-700 text-sm font-medium">
         Proof images
-        <span className="text-slate-500 font-normal ml-1">(optional — up to 3)</span>
+        <span className="text-gray-400 font-normal ml-1">(optional — up to 3)</span>
       </label>
 
       {/* Existing previews */}
       {files.length > 0 && (
         <div className="flex gap-2 flex-wrap">
           {files.map((pf) => (
-            <div key={pf.id} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-600 flex-shrink-0">
+            <div key={pf.id} className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0">
               <img
                 src={pf.preview}
                 alt="proof"
@@ -209,7 +209,7 @@ function ProofUploader({
 
               {/* Status overlay */}
               {pf.status === "uploading" && (
-                <div className="absolute inset-0 bg-slate-900/70 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <Loader2 size={16} className="animate-spin text-white" />
                 </div>
               )}
@@ -219,7 +219,7 @@ function ProofUploader({
                 </div>
               )}
               {pf.status === "error" && (
-                <div className="absolute inset-0 bg-red-900/60 flex items-center justify-center">
+                <div className="absolute inset-0 bg-red-600/60 flex items-center justify-center">
                   <AlertCircle size={14} className="text-red-300" />
                 </div>
               )}
@@ -228,7 +228,7 @@ function ProofUploader({
               <button
                 type="button"
                 onClick={() => remove(pf.id)}
-                className="absolute top-1 left-1 w-5 h-5 bg-slate-900/80 hover:bg-slate-700 rounded-full flex items-center justify-center transition"
+                className="absolute top-1 left-1 w-5 h-5 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition"
               >
                 <X size={10} className="text-white" />
               </button>
@@ -243,7 +243,7 @@ function ProofUploader({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white border border-dashed border-slate-600 hover:border-slate-400 px-4 py-2.5 rounded-xl transition w-full justify-center"
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 border border-dashed border-gray-300 hover:border-blue-400 px-4 py-2.5 rounded-xl transition w-full justify-center"
           >
             <ImagePlus size={15} />
             Add photo{files.length > 0 ? " (3 max)" : "s"}
@@ -337,7 +337,7 @@ export default function ReviewForm({
   };
 
   const textareaCls =
-    "w-full bg-slate-800 border border-slate-600 focus:border-blue-500 rounded-xl px-4 py-3 text-white text-sm placeholder-slate-500 outline-none transition resize-none";
+    "w-full bg-white border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-3 text-gray-900 text-sm placeholder-gray-400 outline-none transition resize-none";
 
   return (
     <motion.div
@@ -354,7 +354,7 @@ export default function ReviewForm({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm"
+              className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm"
             >
               <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
               {error}
@@ -364,7 +364,7 @@ export default function ReviewForm({
 
         {/* Star rating */}
         <div className="flex flex-col items-center py-2">
-          <p className="text-slate-400 text-xs mb-3 uppercase tracking-wider font-semibold">
+          <p className="text-gray-400 text-xs mb-3 uppercase tracking-wider font-semibold">
             Rate your experience with {landlordName}
           </p>
           <StarPicker value={rating} onChange={setRating} />
@@ -381,23 +381,23 @@ export default function ReviewForm({
             >
               {/* Divider */}
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-red-500/20" />
-                <span className="text-red-400 text-xs font-semibold uppercase tracking-wider">
+                <div className="flex-1 h-px bg-red-200" />
+                <span className="text-red-600 text-xs font-semibold uppercase tracking-wider">
                   Complaint details
                 </span>
-                <div className="flex-1 h-px bg-red-500/20" />
+                <div className="flex-1 h-px bg-red-200" />
               </div>
 
               {/* Reason dropdown */}
               <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">
-                  Reason <span className="text-red-400">*</span>
+                <label className="block text-gray-700 text-sm font-medium mb-1.5">
+                  Reason <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     value={complaintReason}
                     onChange={(e) => setComplaintReason(e.target.value)}
-                    className="w-full appearance-none bg-slate-800 border border-slate-600 focus:border-red-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition pr-10"
+                    className="w-full appearance-none bg-white border border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-xl px-4 py-3 text-sm text-gray-900 outline-none transition pr-10"
                     required={isComplaint}
                   >
                     <option value="" disabled>Select a reason…</option>
@@ -405,15 +405,15 @@ export default function ReviewForm({
                       <option key={r.value} value={r.value}>{r.label}</option>
                     ))}
                   </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
               </div>
 
               {/* Explanation */}
               <div>
-                <label className="block text-slate-300 text-sm font-medium mb-1.5">
+                <label className="block text-gray-700 text-sm font-medium mb-1.5">
                   Further explanation
-                  <span className="text-slate-500 font-normal ml-1">(optional)</span>
+                  <span className="text-gray-400 font-normal ml-1">(optional)</span>
                 </label>
                 <textarea
                   value={explanation}
@@ -429,9 +429,9 @@ export default function ReviewForm({
 
         {/* Comment — all ratings */}
         <div>
-          <label className="block text-slate-300 text-sm font-medium mb-1.5">
+          <label className="block text-gray-700 text-sm font-medium mb-1.5">
             {isComplaint ? "Additional comments" : "Your review"}
-            <span className="text-slate-500 font-normal ml-1">(optional)</span>
+            <span className="text-gray-400 font-normal ml-1">(optional)</span>
           </label>
           <textarea
             value={comment}
@@ -454,7 +454,7 @@ export default function ReviewForm({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white text-sm font-medium py-2.5 rounded-xl transition"
+            className="flex-1 border border-gray-300 hover:border-gray-400 text-gray-600 hover:text-gray-900 text-sm font-medium py-2.5 rounded-xl transition"
           >
             Cancel
           </button>
@@ -478,7 +478,7 @@ export default function ReviewForm({
           </button>
         </div>
 
-        <p className="text-slate-500 text-xs text-center">
+        <p className="text-gray-400 text-xs text-center">
           Reviews are reviewed by our team before being published.
         </p>
       </form>

@@ -3,6 +3,7 @@
 # Returns CloudFront URLs for serving — direct S3 URLs are never exposed.
 # AWS credentials live here in Django only — Next.js never sees them.
 
+import logging
 import uuid
 import boto3
 from botocore.exceptions import ClientError
@@ -19,6 +20,8 @@ ALLOWED_TYPES = {
     "video/mp4": "mp4",
 }
 MAX_SIZE_BYTES = 50 * 1024 * 1024  # 50MB
+
+logger = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
@@ -81,11 +84,23 @@ def generate_upload_url(request):
             ExpiresIn=300,  # 5 minutes
         )
 
-        # Public URL uses CloudFront domain if configured, S3 as fallback
-        # (fallback is useful during local development)
+        # Public URL uses the CloudFront domain when configured.
+        #
+        # The fallback below only works if the bucket itself grants public
+        # read. This bucket does not — its policy allows s3:GetObject solely
+        # to the CloudFront service principal — so a direct S3 URL returns
+        # 403 and the image renders broken. Warn loudly rather than silently
+        # storing a URL that will never load.
         if settings.CLOUDFRONT_DOMAIN:
             public_url = f"https://{settings.CLOUDFRONT_DOMAIN}/{key}"
         else:
+            logger.warning(
+                "CLOUDFRONT_DOMAIN is not set — storing a direct S3 URL for %s. "
+                "If the bucket is not publicly readable this media will return 403. "
+                "Set CLOUDFRONT_DOMAIN in the environment, then run "
+                "`python manage.py fix_media_urls` to repoint existing records.",
+                key,
+            )
             public_url = (
                 f"https://{settings.AWS_STORAGE_BUCKET_NAME}"
                 f".s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/{key}"

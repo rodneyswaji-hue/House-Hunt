@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { motion, useInView} from "framer-motion";
 import { useRef, useEffect, useState } from "react";
@@ -9,14 +10,12 @@ import {
   Search,
   Home,
   Phone,
-  Target,
-  BarChart2,
-  Users,
   ShieldCheck,
   PhoneCall,
   Star,
   Building2,
   ArrowRight,
+  TrendingUp,
 } from "lucide-react";
 
 // ─── Animated Counter ──────────────────────────────────────────────────────
@@ -166,30 +165,104 @@ export function HowItWorksSection() {
   );
 }
 
-// ─── Features Section ─────────────────────────────────────────────────────
 
-const audienceFeatures = [
+
+
+
+// ─── Content ───────────────────────────────────────────────────────────────
+// Merged from the old FeaturesSection (audience + image) and HighlightsSection
+// (why-choose-us reasoning) — one entry per audience, each carrying both.
+
+const audienceHighlights = [
   {
-    img: "/houseImage.jpeg",
+    icon: Home,
     tag: "Tenants",
     title: "Find a home you'll love",
-    body: "Smart filters, real photos, and exact locations make it easy to find the right rental — without the runaround.",
+    body: "Filter by estate, budget, and bedroom count to find real listings — the way Kenyans actually search for homes.",
+    img: "/houseImage.jpeg",
   },
   {
-    img: "/landlordSoftware.jpeg",
+    icon: Building2,
     tag: "Landlords",
     title: "Fill vacancies faster",
-    body: "List your property in minutes. Get direct enquiries from serious tenants — zero commission, zero middlemen.",
+    body: "List your property in minutes and connect directly with serious tenants — zero commission, transparent pricing from day one.",
+    img: "/landlordSoftware.jpeg",
   },
   {
-    img: "/imagesPerson.jpeg",
+    icon: TrendingUp,
     tag: "Investors",
     title: "Grow your portfolio",
-    body: "Discover high-yield rental properties across Nairobi and make data-informed decisions for your real estate portfolio.",
+    body: "Discover high-yield rental properties across Nairobi, backed by real data and a support team that answers fast.",
+    img: "/imagesPerson.jpeg",
   },
 ];
 
-export function FeaturesSection() {
+// ─── Pie-slice geometry (percentage-based, scales with container) ─────────
+
+function getSlicePath(index: number, total: number, steps = 32) {
+  const startAngle = (360 / total) * index;
+  const endAngle = (360 / total) * (index + 1);
+  const points = ["50% 50%"];
+  for (let s = 0; s <= steps; s++) {
+    const theta = startAngle + ((endAngle - startAngle) * s) / steps;
+    const mathAngle = ((90 - theta) * Math.PI) / 180;
+    const x = 50 + 50 * Math.cos(mathAngle);
+    const y = 50 - 50 * Math.sin(mathAngle);
+    points.push(`${x.toFixed(2)}% ${y.toFixed(2)}%`);
+  }
+  return `polygon(${points.join(", ")})`;
+}
+
+function getLabelPosition(index: number, total: number, radiusFraction = 0.6) {
+  const bisector = (360 / total) * (index + 0.5);
+  const mathAngle = ((90 - bisector) * Math.PI) / 180;
+  const x = 50 + 50 * radiusFraction * Math.cos(mathAngle);
+  const y = 50 - 50 * radiusFraction * Math.sin(mathAngle);
+  return { left: `${x.toFixed(2)}%`, top: `${y.toFixed(2)}%` };
+}
+
+// ─── Flanking text block — same opacity/weight hover pattern as before ────
+
+function AudienceText({
+  item,
+  index,
+  active,
+  setActive,
+  className = "",
+}: {
+  item: (typeof audienceHighlights)[number];
+  index: number;
+  active: number;
+  setActive: (index: number) => void;
+  className?: string;
+}) {
+  const isActive = active === index;
+  return (
+    <div
+      onMouseEnter={() => setActive(index)}
+      className={`cursor-pointer transition-opacity duration-300 ${className}`.trim()}
+      style={{ opacity: isActive ? 1 : 0.45 }}
+    >
+      <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-widest block mb-1.5">
+        {item.tag}
+      </span>
+      <h3
+        className={`text-lg md:text-xl mb-2 transition-colors ${
+          isActive ? "font-semibold text-gray-900" : "font-medium text-gray-900"
+        }`}
+      >
+        {item.title}
+      </h3>
+      <p className="text-[13.5px] text-gray-400 leading-relaxed">{item.body}</p>
+    </div>
+  );
+}
+
+export function WhyChooseUsSection() {
+  
+  const [active, setActive] = useState(0);
+  const total = audienceHighlights.length;
+
   return (
     <section className="py-24 px-6 md:px-12 bg-white">
       <div className="max-w-6xl mx-auto">
@@ -200,118 +273,123 @@ export function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            For every type of renter
+            Why choose HouseHunt?
           </h2>
           <p className="text-gray-400 max-w-sm mx-auto">
-            Whether you&apos;re a tenant, landlord, or investor
+            The smarter way to rent in Kenya — for tenants, landlords, and investors
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {audienceFeatures.map((f, i) => (
-            <motion.div
-              key={f.tag}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.12, duration: 0.5 }}
-              className="rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden group hover:-translate-y-1.5 hover:shadow-lg transition-all duration-300 cursor-default"
-            >
-              <div className="relative h-52 overflow-hidden">
-                <Image
-                  src={f.img}
-                  alt={f.tag}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center gap-10 lg:gap-14">
+          {/* Circle — first on mobile, centre column on desktop */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="order-1 lg:order-2 relative mx-auto w-[260px] h-[260px] md:w-[300px] md:h-[300px]"
+          >
+            {/* Wedges — clip-path also defines the hoverable hit region */}
+            {audienceHighlights.map(({ img, tag }, i) => (
+              <div
+                key={tag}
+                onMouseEnter={() => setActive(i)}
+                className="absolute inset-0 cursor-pointer"
+                style={{
+                  clipPath: getSlicePath(i, total),
+                  zIndex: active === i ? 2 : 1,
+                }}
+              >
+                <div
+                  className="absolute inset-0 transition-opacity duration-300"
+                  style={{ opacity: active === i ? 1 : 0.45 }}
+                >
+                  <Image src={img} alt={tag} fill sizes="300px" className="object-cover" />
+                </div>
+                <div
+                  className="absolute inset-0 transition-opacity duration-300"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.65) 100%)",
+                    opacity: active === i ? 0.75 : 0.9,
+                  }}
                 />
               </div>
-              <div className="p-5">
-                <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-widest">
-                  {f.tag}
-                </span>
-                <h3 className="text-base font-semibold text-gray-900 mt-1.5 mb-2">
-                  {f.title}
-                </h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{f.body}</p>
+            ))}
+
+            {/* Labels — unclipped, always fully legible */}
+            {audienceHighlights.map(({ icon: Icon, tag }, i) => {
+              const pos = getLabelPosition(i, total);
+              return (
+                <div
+                  key={tag}
+                  onMouseEnter={() => setActive(i)}
+                  className="absolute z-10 flex flex-col items-center gap-1.5 cursor-pointer"
+                  style={{
+                    left: pos.left,
+                    top: pos.top,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <Icon size={18} strokeWidth={2} className="text-white" />
+                  <span className="text-[11px] font-semibold text-white text-center leading-tight">
+                    {tag}
+                  </span>
+                </div>
+              );
+            })}
+
+            {/* Centre logo badge */}
+            <div className="absolute inset-0 m-auto w-[28%] h-[28%] rounded-full overflow-hidden bg-transparent shadow-[0_8px_24px_-6px_rgba(15,23,42,0.35)] z-20">
+              <div className="relative w-full h-full">
+                <Image
+                  src="/househuntlogo_2.png"
+                  alt="HouseHunt"
+                  fill
+                  className="object-cover"
+                  priority
+                />
               </div>
-            </motion.div>
-          ))}
+            </div>
+          </motion.div>
+
+          {/* Left column: Investors */}
+          <div className="order-2 lg:order-1 flex justify-center lg:justify-end">
+            <AudienceText
+              item={audienceHighlights[2]}
+              index={2}
+              active={active}
+              setActive={setActive}
+              className="max-w-[220px] text-center lg:text-right"
+            />
+          </div>
+
+          {/* Right column: Tenants */}
+          <div className="order-3 flex justify-center lg:justify-start">
+            <AudienceText
+              item={audienceHighlights[0]}
+              index={0}
+              active={active}
+              setActive={setActive}
+              className="max-w-[220px] text-center lg:text-left"
+            />
+          </div>
+
+          {/* Bottom row: Landlords */}
+          <div className="order-4 lg:col-span-3 flex justify-center">
+            <AudienceText
+              item={audienceHighlights[1]}
+              index={1}
+              active={active}
+              setActive={setActive}
+              className="max-w-[260px] text-center"
+            />
+          </div>
         </div>
       </div>
     </section>
   );
 }
-
-// ─── Highlights Section ───────────────────────────────────────────────────
-
-const highlights = [
-  {
-    icon: <Target size={22} />,
-    title: "Search built for Kenya",
-    desc: "Filter by estate, budget, and bedroom count — the way Kenyans actually look for homes.",
-  },
-  {
-    icon: <BarChart2 size={22} />,
-    title: "Transparent pricing",
-    desc: "See what fair rent looks like in any neighbourhood before you sign anything.",
-  },
-  {
-    icon: <Users size={22} />,
-    title: "Real people, real support",
-    desc: "A dedicated team behind every listing. We answer questions and resolve issues fast.",
-  },
-];
-
-export function HighlightsSection() {
-  return (
-    <section className="py-24 px-6 md:px-12 bg-blue-50">
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            Why choose HouseHunt?
-          </h2>
-          <p className="text-gray-400 max-w-sm mx-auto">The smarter way to rent in Kenya</p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {highlights.map((h, i) => (
-            <motion.div
-              key={h.title}
-              initial={{ opacity: 0, scale: 0.92 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.12, duration: 0.5 }}
-              className="text-center p-8 bg-white border border-blue-100 rounded-2xl hover:shadow-md transition-shadow duration-300"
-            >
-              <motion.div
-                initial={{ rotate: -15, opacity: 0 }}
-                whileInView={{ rotate: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{
-                  delay: i * 0.12 + 0.2,
-                  type: "spring",
-                  stiffness: 250,
-                  damping: 15,
-                }}
-                className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-5 text-blue-600"
-              >
-                {h.icon}
-              </motion.div>
-              <h3 className="font-semibold text-gray-900 mb-2">{h.title}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{h.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─── Landlord CTA Strip ──────────────────────────────────────────────────
 
 export function LandlordCTASection() {
@@ -515,7 +593,7 @@ const neighborhoods = [
 ];
 
 export function ExploreNeighborhoods() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <section className="py-24 bg-white">
@@ -539,13 +617,15 @@ export function ExploreNeighborhoods() {
             <div
               key={item.name}
               onClick={() =>
-                navigate(`/properties?location=${item.name}`)
+                router.push(`/listings?location=${encodeURIComponent(item.name)}`)
               }
               className="group relative rounded-3xl overflow-hidden cursor-pointer h-[320px]"
             >
 
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={item.image}
+                alt={item.name}
                 className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
               />
 
@@ -589,7 +669,7 @@ export function ExploreNeighborhoods() {
 
 export  function ListPropertyCTA() {
 
-    const navigate = useNavigate();
+    const router = useRouter();
 
     return (
     <section className="bg-gradient-to-r from-blue-700 to-indigo-700 py-24">
@@ -689,7 +769,7 @@ Increase trust with verified listings.
 <div className="mt-12 flex gap-4">
 
 <button
-onClick={() => navigate("/list-property")}
+onClick={() => router.push("/landlord/register")}
 className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:shadow-xl">
 
 List Your Property
@@ -697,7 +777,7 @@ List Your Property
 </button>
 
 <button
-onClick={() => navigate("/about")}
+onClick={() => router.push("/contact")}
 className="border border-white text-white px-8 py-4 rounded-xl">
 
 Learn More
@@ -708,11 +788,13 @@ Learn More
 
 </div>
 
-<div>
+<div className="relative w-full h-80 rounded-2xl overflow-hidden">
 
-<img
-src="/images/landlord.png"
-className="w-full"/>
+<Image
+src="/landlordSoftware.jpeg"
+alt="Landlord listing a property on HouseHunt"
+fill
+className="object-cover"/>
 
 </div>
 

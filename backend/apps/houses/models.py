@@ -18,9 +18,29 @@ class House(models.Model):
     price = models.PositiveIntegerField(help_text="Monthly rent in KES")
     units = models.PositiveIntegerField(default=1)
 
+    # What kind of dwelling it is. Kept separate from the bedroom count
+    # because studios, bedsitters and single rooms all have zero bedrooms —
+    # one integer cannot express both.
+    PROPERTY_TYPE_CHOICES = [
+        ("single_room", "Single Room"),
+        ("bedsitter", "Bedsitter"),
+        ("studio", "Studio Apartment"),
+        ("apartment", "Apartment / Flat"),
+        ("maisonette", "Maisonette"),
+        ("bungalow", "Bungalow"),
+        ("townhouse", "Townhouse"),
+        ("villa", "Villa"),
+        ("penthouse", "Penthouse"),
+        ("servant_quarter", "Servant Quarter (SQ)"),
+    ]
+    property_type = models.CharField(
+        max_length=32, choices=PROPERTY_TYPE_CHOICES, default="apartment"
+    )
+
     BEDROOM_CHOICES = [
-        (0, "Bedsitter"), (1, "1 Bedroom"),
-        (2, "2 Bedrooms"), (3, "3 Bedrooms"),
+        (0, "No separate bedroom"),
+        (1, "1 Bedroom"), (2, "2 Bedrooms"), (3, "3 Bedrooms"),
+        (4, "4 Bedrooms"), (5, "5+ Bedrooms"),
     ]
     bedrooms = models.IntegerField(choices=BEDROOM_CHOICES)
     available = models.BooleanField(default=True)

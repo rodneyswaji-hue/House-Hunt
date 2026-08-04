@@ -57,13 +57,22 @@ export default function Navbar() {
             </Link>
           )}
           {isListingsPage && (
-            <Link
-              href="/tenant/register"
-              className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 transition font-semibold text-sm px-4 py-2 rounded-full"
-            >
-              <UserPlus size={16} />
-              Create Account
-            </Link>
+            <>
+              <Link
+                href="/tenant/login"
+                className="flex items-center gap-1.5 hover:text-blue-200 transition font-medium text-sm"
+              >
+                <LogIn size={16} />
+                Sign In
+              </Link>
+              <Link
+                href="/tenant/register"
+                className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 transition font-semibold text-sm px-4 py-2 rounded-full"
+              >
+                <UserPlus size={16} />
+                Create Account
+              </Link>
+            </>
           )}
         </div>
 
@@ -110,14 +119,24 @@ export default function Navbar() {
                 </Link>
               )}
               {isListingsPage && (
-                <Link
-                  href="/tenant/register"
-                  className="flex items-center gap-2 hover:text-blue-200 transition font-medium pt-1 border-t border-blue-500"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <UserPlus size={16} />
-                  Create Account
-                </Link>
+                <>
+                  <Link
+                    href="/tenant/login"
+                    className="flex items-center gap-2 hover:text-blue-200 transition font-medium pt-1 border-t border-blue-500"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <LogIn size={16} />
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/tenant/register"
+                    className="flex items-center gap-2 hover:text-blue-200 transition font-medium"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <UserPlus size={16} />
+                    Create Account
+                  </Link>
+                </>
               )}
             </div>
           </motion.div>
